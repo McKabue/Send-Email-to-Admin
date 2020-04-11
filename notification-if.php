@@ -2,19 +2,19 @@
 
 /**
  * Plugin Name: Send Notification If
- * Plugin URI: https://github.com/McKabue/send-notification-if
+ * Plugin URI: https://github.com/McKabue/notification-if
  * Description: Send Emails to Admins whenever certain conditions are meet. Version 1.0 sends emails to all admins when the search is not found. Future versions will have more configuration options.
  * Version: 1.0
  * Author: Kabue Charles
  * Author URI: https://mckabue.com/
  * License: MIT
  **/
-require 'send-notification-if.settings.php';
-require 'send-notification-if.no-search-results.php';
+require 'notification-if.settings.php';
+require 'notification-if.no-search-results.php';
 
 function get_notification_data($notification_name)
 {
-    $stringFileContents = file_get_contents(__DIR__ . "/send-notification-if.json");
+    $stringFileContents = file_get_contents(__DIR__ . "/notification-if.json");
     $jsonFileContents = json_decode($stringFileContents);
     $notifications = $jsonFileContents->notifications;
 
