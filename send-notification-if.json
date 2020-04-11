@@ -1,0 +1,11 @@
+{
+    "notifications": [{
+        "name": "no-search-results",
+        "description": "When there is no search results",
+        "users": [{
+            "type": "role",
+            "value": "administrator",
+            "channels": ["email"]
+        }]
+    }]
+}

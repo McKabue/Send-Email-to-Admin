@@ -9,58 +9,47 @@
  * Author URI: https://mckabue.com/
  * License: MIT
  **/
+require 'send-notification-if.settings.php';
+require 'send-notification-if.no-search-results.php';
 
-add_filter(
-    'the_posts', // (Required) The name of the filter to hook the $function_to_add callback to.
-    'send_email_to_admin_if_no_search_results', // (Required) The callback to be run when the filter is applied.
-    1, // (Optional) Used to specify the order in which the functions associated with a particular action are executed. Lower numbers correspond with earlier execution, and functions with the same priority are executed in the order in which they were added to the action.
-    2 // (Optional) The number of arguments the function accepts.
-);
-
-/**
- * @param WP_Post[] $posts
- * @param WP_Query $query
- */
-function send_email_to_admin_if_no_search_results($posts, WP_Query $query)
+function get_notification_data($notification_name)
 {
-    if ($query->is_main_query() && count($posts) == 0) {
-        send_email_to_admins();
+    $stringFileContents = file_get_contents(__DIR__ . "/send-notification-if.json");
+    $jsonFileContents = json_decode($stringFileContents);
+    $notifications = $jsonFileContents->notifications;
+
+    foreach ($notifications as $notification) {
+        if ($notification->name == $notification_name) {
+            $user_map = function ($user) {
+                if ($user->type == 'role') {
+                    $channel_map = function ($channel) use ($user) {
+                        if ($channel == 'email') {
+                            return (object) ['name' => $channel, 'value' => get_role_emails($user->value)];
+                        }
+                    };
+
+                    $user->channels = array_map($channel_map, $user->channels);
+                }
+
+                return $user;
+            };
+
+            $notification->users = array_map($user_map, $notification->users);
+
+            return $notification;
+        }
     }
 
-    return $posts;
+    return null;
 }
 
-function send_email_to_admins()
+function get_role_emails($role)
 {
-    $admin_emails = get_admin_emails();
+    $wp_users = get_users('role=' + $role);
 
-    foreach ($admin_emails as $admin_email) {
-        send_email($admin_email);
-    }
-}
-
-function get_admin_emails()
-{
-    $wp_users = get_users('role=administrator');
-
-    function get_email($wp_user)
-    {
+    $get_email = function ($wp_user) {
         return $wp_user->data->user_email;
-    }
+    };
 
-    return array_map("get_email", $wp_users);
-}
-
-/**
- * @param string $admin_email
- */
-function send_email(string $admin_email)
-{
-    $search_query = get_search_query();
-
-    $to = $admin_email;
-    $subject = 'Search Result Not Found';
-    $message = 'User searched  ' . $search_query;
-
-    wp_mail($to, $subject, $message);
+    return array_map($get_email, $wp_users);
 }
