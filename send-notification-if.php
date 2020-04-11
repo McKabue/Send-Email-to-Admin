@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Plugin Name: Send Email to Admin
- * Plugin URI: https://github.com/McKabue/send-email-to-admin
+ * Plugin Name: Send Notification If
+ * Plugin URI: https://github.com/McKabue/send-notification-if
  * Description: Send Emails to Admins whenever certain conditions are meet. Version 1.0 sends emails to all admins when the search is not found. Future versions will have more configuration options.
  * Version: 1.0
  * Author: Kabue Charles
